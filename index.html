@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroSpot - London Airport Operations & Plane Spotting Dashboard</title>
+  <meta name="description" content="Determine active runways and the best plane spotting locations at London Heathrow, Gatwick, and London City in real-time based on wind conditions.">
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css?v=14">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header class="main-header glass-card">
+      <div class="logo-area">
+        <i data-lucide="plane-takeoff" class="logo-icon animate-pulse-slow"></i>
+        <div>
+          <h1>AeroSpot</h1>
+          <p class="subtitle">Live Airport Operations & Plane Spotting Guide</p>
+        </div>
+      </div>
+      
+      <div class="status-bar">
+        <div id="time-display" class="status-widget">
+          <i data-lucide="clock"></i>
+          <div>
+            <span class="widget-label">Local Time</span>
+            <span id="local-time-value" class="widget-val">--:--:--</span>
+          </div>
+        </div>
+        <div id="weather-status-display" class="status-widget">
+          <i data-lucide="cloud-sun"></i>
+          <div>
+            <span class="widget-label">London Weather</span>
+            <span id="weather-value" class="widget-val">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard-grid">
+      
+      <!-- Left Column: Controls & Information -->
+      <aside class="control-panel glass-card">
+        <section class="wind-simulator">
+          <h2><i data-lucide="wind"></i> Wind Conditions</h2>
+          <p class="section-desc">Wind direction determines the runway layout. Aircraft land and take off into the wind.</p>
+          
+          <div class="mode-selector">
+            <span class="mode-label">Wind Source</span>
+            <div class="toggle-container">
+              <button id="btn-mode-auto" class="toggle-btn active" onclick="setWindMode('auto')">Auto (Live)</button>
+              <button id="btn-mode-manual" class="toggle-btn" onclick="setWindMode('manual')">Manual Sim</button>
+            </div>
+          </div>
+          
+          <div class="wind-dial-container">
+            <div class="compass-dial" id="wind-compass">
+              <div class="compass-marker N">N</div>
+              <div class="compass-marker E">E</div>
+              <div class="compass-marker S">S</div>
+              <div class="compass-marker W">W</div>
+              <div class="wind-arrow-wrapper" id="wind-arrow-wrapper">
+                <div class="wind-arrow"></div>
+              </div>
+              <div class="compass-center">
+                <span id="wind-direction-deg">--°</span>
+                <span id="wind-direction-cardinal" class="cardinal">--</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="input-wind-direction">Wind Direction (°)</label>
+              <span id="val-wind-direction">--°</span>
+            </div>
+            <input type="range" id="input-wind-direction" min="0" max="359" value="240" disabled oninput="updateManualWindDirection(this.value)">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="input-wind-speed">Wind Speed (Knots)</label>
+              <span id="val-wind-speed">-- kts</span>
+            </div>
+            <input type="range" id="input-wind-speed" min="0" max="45" value="10" disabled oninput="updateManualWindSpeed(this.value)">
+          </div>
+          
+          <div id="wind-warning-message" class="warning-alert hidden">
+            <i data-lucide="alert-triangle"></i>
+            <span>High winds detected! Spotting conditions may be challenging.</span>
+          </div>
+        </section>
+
+        <!-- Date/Time Simulator (only visible on airport detail pages) -->
+        <section class="date-time-simulator hidden" id="sidebar-time-simulator">
+          <h2><i data-lucide="clock"></i> Date & Time Simulator</h2>
+          <p class="section-desc">Test historical or future operational runway configurations.</p>
+          <div class="time-sim-controls">
+            <div class="toggle-container">
+              <button class="toggle-btn active time-live-btn" onclick="setTimeMode('live')">Live Time</button>
+              <button class="toggle-btn time-custom-btn" onclick="setTimeMode('custom')">Simulated</button>
+            </div>
+            <input type="datetime-local" class="custom-time-input" disabled onchange="updateCustomTime(this.value)">
+          </div>
+        </section>
+
+        <!-- General Spotting Notice -->
+        <section class="spotting-notice">
+          <h3><i data-lucide="info"></i> Quick Spotter Tips</h3>
+          <ul class="tips-list" id="quick-spotter-tips">
+            <li id="tip-lhr"><strong>LHR:</strong> Alternates runways at 15:00 local time during Westerly operations for community noise relief.</li>
+            <li id="tip-lgw"><strong>LGW:</strong> Standard westerly operations are active 70-75% of the year.</li>
+            <li id="tip-lcy"><strong>LCY:</strong> Closed from Sat 13:00 to Sun 10:00. Steep 5.5° glide path in use.</li>
+          </ul>
+        </section>
+      </aside>
+
+      <!-- Center & Right: Dashboard and Sub-views -->
+      <div class="main-content">
+        
+        <!-- Main Dashboard View -->
+        <div id="view-dashboard" class="page-view">
+          <section class="airports-grid">
+            
+            <!-- Heathrow LHR Card -->
+            <div class="airport-card glass-card" id="card-lhr">
+              <div class="airport-header">
+                <div class="airport-title">
+                  <h3>Heathrow Airport</h3>
+                  <span class="airport-code">LHR / EGLL</span>
+                </div>
+                <span class="status-badge" id="lhr-ops-badge">Westerly Ops</span>
+              </div>
+              
+              <div class="runways-status">
+                <div class="runway-row">
+                  <span class="runway-label">Arrivals</span>
+                  <span class="runway-value active-green" id="lhr-arrivals-runway">27L</span>
+                </div>
+                <div class="runway-row">
+                  <span class="runway-label">Departures</span>
+                  <span class="runway-value active-blue" id="lhr-departures-runway">27R</span>
+                </div>
+              </div>
+              
+              <div class="respite-schedule">
+                <h4><i data-lucide="calendar"></i> Alternation & Respite</h4>
+                <div id="lhr-respite-details">
+                  <p class="current-schedule-period">Week of <span id="lhr-week-date">--</span></p>
+                  <div class="respite-timeline">
+                    <div class="timeline-part" id="lhr-am-period">
+                      <span class="time-label">06:00 - 15:00</span>
+                      <span class="timeline-value" id="lhr-am-value">Land 27L / Takeoff 27R</span>
+                    </div>
+                    <div class="timeline-part" id="lhr-pm-period">
+                      <span class="time-label">15:00 - End</span>
+                      <span class="timeline-value" id="lhr-pm-value">Land 27R / Takeoff 27L</span>
+                    </div>
+                  </div>
+                  <div class="preference-note" id="lhr-preference-info">
+                    <i data-lucide="info"></i> Westerly Preference: operates Westerly unless easterly winds exceed 5 knots.
+                  </div>
+                </div>
+              </div>
+              
+              <a href="#/lhr" class="card-corner-link" aria-label="View Heathrow Operations & Map">
+                <i data-lucide="arrow-up-right"></i>
+              </a>
+            </div>
+
+            <!-- Gatwick LGW Card -->
+            <div class="airport-card glass-card" id="card-lgw">
+              <div class="airport-header">
+                <div class="airport-title">
+                  <h3>Gatwick Airport</h3>
+                  <span class="airport-code">LGW / EGKK</span>
+                </div>
+                <span class="status-badge" id="lgw-ops-badge">Westerly Ops</span>
+              </div>
+              
+              <div class="runways-status">
+                <div class="runway-row">
+                  <span class="runway-label">Main Runway</span>
+                  <span class="runway-value active-green" id="lgw-main-runway">26L</span>
+                </div>
+                <div class="runway-row">
+                  <span class="runway-label">Standby Runway</span>
+                  <span class="runway-value disabled-gray" id="lgw-standby-runway">26R (Standby)</span>
+                </div>
+              </div>
+
+              <div class="respite-schedule">
+                <h4><i data-lucide="alert-circle"></i> Runway Info</h4>
+                <p class="desc-text" id="lgw-runway-desc">Runway 26L is active (approaching from the East over Kent, landing heading West).</p>
+                <div class="preference-note">
+                  <i data-lucide="help-circle"></i> Standby 08L/26R is used during emergencies or scheduled maintenance.
+                </div>
+              </div>
+
+              <a href="#/lgw" class="card-corner-link" aria-label="View Gatwick Operations & Map">
+                <i data-lucide="arrow-up-right"></i>
+              </a>
+            </div>
+
+            <!-- London City LCY Card -->
+            <div class="airport-card glass-card" id="card-lcy">
+              <div class="airport-header">
+                <div class="airport-title">
+                  <h3>London City</h3>
+                  <span class="airport-code">LCY / EGLC</span>
+                </div>
+                <span class="status-badge" id="lcy-ops-badge">Westerly Ops</span>
+              </div>
+              
+              <div class="runways-status">
+                <div class="runway-row">
+                  <span class="runway-label">Active Runway</span>
+                  <span class="runway-value active-green" id="lcy-active-runway">27</span>
+                </div>
+              </div>
+
+              <div class="respite-schedule">
+                <h4><i data-lucide="shield-alert"></i> Steep Approach</h4>
+                <p class="desc-text" id="lcy-runway-desc">Runway 27 active. Aircraft approach at a steep 5.5° angle over the Thames Estuary and land heading West.</p>
+                <div class="preference-note warning-text">
+                  <i data-lucide="clock-alert"></i> No flights Saturday 13:00 to Sunday 10:00 due to weekend noise ban.
+                </div>
+              </div>
+
+              <a href="#/lcy" class="card-corner-link" aria-label="View London City Operations & Map">
+                <i data-lucide="arrow-up-right"></i>
+              </a>
+            </div>
+
+          </section>
+        </div>
+
+        <!-- Heathrow (LHR) Detail View -->
+        <div id="view-lhr" class="page-view hidden">
+          <div class="detail-header glass-card">
+            <a href="#/" class="back-link"><i data-lucide="chevron-left"></i> Back to Dashboard</a>
+            <div class="detail-title-area">
+              <h2>Heathrow Airport Operations</h2>
+              <span class="status-badge" id="detail-lhr-ops-badge">Westerly Ops</span>
+            </div>
+            <span class="airport-code-large">LHR / EGLL</span>
+          </div>
+
+          <div class="detail-grid">
+            <!-- Left Side: Operations Details -->
+            <div class="detail-info-pane">
+              <!-- Active Runways Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="plane-takeoff"></i> Active Runways</h3>
+                <div class="runways-status">
+                  <div class="runway-row">
+                    <span class="runway-label">Arrivals</span>
+                    <span class="runway-value active-green" id="detail-lhr-arrivals-runway">27L</span>
+                  </div>
+                  <div class="runway-row">
+                    <span class="runway-label">Departures</span>
+                    <span class="runway-value active-blue" id="detail-lhr-departures-runway">27R</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Alternation Schedule Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="calendar"></i> Alternation & Respite</h3>
+                <div id="detail-lhr-respite-details">
+                  <p class="current-schedule-period">Week of <span id="detail-lhr-week-date">--</span></p>
+                  <div class="respite-timeline">
+                    <div class="timeline-part" id="detail-lhr-am-period">
+                      <span class="time-label">06:00 - 15:00</span>
+                      <span class="timeline-value" id="detail-lhr-am-value">Land 27L / Takeoff 27R</span>
+                    </div>
+                    <div class="timeline-part" id="detail-lhr-pm-period">
+                      <span class="time-label">15:00 - End</span>
+                      <span class="timeline-value" id="detail-lhr-pm-value">Land 27R / Takeoff 27L</span>
+                    </div>
+                  </div>
+                  <div class="preference-note" id="detail-lhr-preference-info">
+                    <i data-lucide="info"></i> Westerly Preference: operates Westerly unless easterly winds exceed 5 knots.
+                  </div>
+                </div>
+              </div>
+
+
+
+              <!-- Spotting Locations List -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="map-pin"></i> Spotting Locations</h3>
+                <div class="spotting-list" id="lhr-spotting-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Large Interactive Map -->
+            <div class="detail-map-pane">
+              <div class="glass-card map-card">
+                <div class="map-card-header">
+                  <h3><i data-lucide="map"></i> Operations & Spotting Spot Map</h3>
+                  <div class="legend">
+                    <div class="legend-item"><span class="line-dot approach"></span> Arrivals (Approach)</div>
+                    <div class="legend-item"><span class="line-dot departure"></span> Departures (Climb-out)</div>
+                    <div class="legend-item"><span class="pin-dot"></span> Spotting Location</div>
+                  </div>
+                </div>
+                <div class="airport-map-large" id="detail-map-lhr-container"></div>
+                <div class="map-tips">
+                  <i data-lucide="info"></i>
+                  <span>Click on any yellow pin on the map to open photos and detailed directions for that spot. Highlighted pins indicate optimal conditions right now.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gatwick (LGW) Detail View -->
+        <div id="view-lgw" class="page-view hidden">
+          <div class="detail-header glass-card">
+            <a href="#/" class="back-link"><i data-lucide="chevron-left"></i> Back to Dashboard</a>
+            <div class="detail-title-area">
+              <h2>Gatwick Airport Operations</h2>
+              <span class="status-badge" id="detail-lgw-ops-badge">Westerly Ops</span>
+            </div>
+            <span class="airport-code-large">LGW / EGKK</span>
+          </div>
+
+          <div class="detail-grid">
+            <!-- Left Side: Operations Details -->
+            <div class="detail-info-pane">
+              <!-- Active Runways Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="plane-takeoff"></i> Active Runways</h3>
+                <div class="runways-status">
+                  <div class="runway-row">
+                    <span class="runway-label">Main Runway</span>
+                    <span class="runway-value active-green" id="detail-lgw-main-runway">26L</span>
+                  </div>
+                  <div class="runway-row">
+                    <span class="runway-label">Standby Runway</span>
+                    <span class="runway-value disabled-gray" id="detail-lgw-standby-runway">26R (Standby)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Runway Info Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="alert-circle"></i> Runway Information</h3>
+                <p class="desc-text" id="detail-lgw-runway-desc">Runway 26L is active (approaching from the East over Kent, landing heading West).</p>
+                <div class="preference-note">
+                  <i data-lucide="help-circle"></i> Standby 08L/26R is used during emergencies or scheduled maintenance.
+                </div>
+              </div>
+
+
+
+              <!-- Spotting Locations List -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="map-pin"></i> Spotting Locations</h3>
+                <div class="spotting-list" id="lgw-spotting-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Large Interactive Map -->
+            <div class="detail-map-pane">
+              <div class="glass-card map-card">
+                <div class="map-card-header">
+                  <h3><i data-lucide="map"></i> Operations & Spotting Spot Map</h3>
+                  <div class="legend">
+                    <div class="legend-item"><span class="line-dot approach"></span> Arrivals (Approach)</div>
+                    <div class="legend-item"><span class="line-dot departure"></span> Departures (Climb-out)</div>
+                    <div class="legend-item"><span class="pin-dot"></span> Spotting Location</div>
+                  </div>
+                </div>
+                <div class="airport-map-large" id="detail-map-lgw-container"></div>
+                <div class="map-tips">
+                  <i data-lucide="info"></i>
+                  <span>Click on any yellow pin on the map to open photos and detailed directions for that spot. Highlighted pins indicate optimal conditions right now.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- London City (LCY) Detail View -->
+        <div id="view-lcy" class="page-view hidden">
+          <div class="detail-header glass-card">
+            <a href="#/" class="back-link"><i data-lucide="chevron-left"></i> Back to Dashboard</a>
+            <div class="detail-title-area">
+              <h2>London City Airport Operations</h2>
+              <span class="status-badge" id="detail-lcy-ops-badge">Westerly Ops</span>
+            </div>
+            <span class="airport-code-large">LCY / EGLC</span>
+          </div>
+
+          <div class="detail-grid">
+            <!-- Left Side: Operations Details -->
+            <div class="detail-info-pane">
+              <!-- Active Runways Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="plane-takeoff"></i> Active Runways</h3>
+                <div class="runways-status">
+                  <div class="runway-row">
+                    <span class="runway-label">Active Runway</span>
+                    <span class="runway-value active-green" id="detail-lcy-active-runway">27</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Steep Approach & Curfew Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="shield-alert"></i> Steep Approach & Curfew</h3>
+                <p class="desc-text" id="detail-lcy-runway-desc">Runway 27 active. Aircraft approach at a steep 5.5° angle over the Thames Estuary and land heading West.</p>
+                <div class="preference-note warning-text">
+                  <i data-lucide="clock-alert"></i> No flights Saturday 13:00 to Sunday 10:00 due to weekend noise ban.
+                </div>
+              </div>
+
+
+
+              <!-- Spotting Locations List -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="map-pin"></i> Spotting Locations</h3>
+                <div class="spotting-list" id="lcy-spotting-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Large Interactive Map -->
+            <div class="detail-map-pane">
+              <div class="glass-card map-card">
+                <div class="map-card-header">
+                  <h3><i data-lucide="map"></i> Operations & Spotting Spot Map</h3>
+                  <div class="legend">
+                    <div class="legend-item"><span class="line-dot approach"></span> Arrivals (Approach)</div>
+                    <div class="legend-item"><span class="line-dot departure"></span> Departures (Climb-out)</div>
+                    <div class="legend-item"><span class="pin-dot"></span> Spotting Location</div>
+                  </div>
+                </div>
+                <div class="airport-map-large" id="detail-map-lcy-container"></div>
+                <div class="map-tips">
+                  <i data-lucide="info"></i>
+                  <span>Click on any yellow pin on the map to open photos and detailed directions for that spot. Highlighted pins indicate optimal conditions right now.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="main-footer glass-card">
+      <p class="api-attribution">Weather data sourced from <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo API</a>.</p>
+    </footer>
+  </div>
+
+  <!-- Detail Modal for Spotting Spots -->
+  <div id="spotter-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-card">
+      <button class="modal-close-btn" onclick="closeSpotterModal()">&times;</button>
+      <div class="modal-body">
+        <div class="modal-image-container">
+          <img id="modal-spot-image" src="" alt="Spotting Spot Image">
+          <div class="modal-image-overlay">
+            <h2 id="modal-spot-name">Spot Name</h2>
+            <span id="modal-spot-airport" class="modal-airport-tag">Airport</span>
+          </div>
+        </div>
+        <div class="modal-info-grid">
+          <div class="modal-text-block">
+            <h3><i data-lucide="info"></i> Description</h3>
+            <p id="modal-spot-description">Description text goes here.</p>
+          </div>
+          <div class="modal-details-sidebar">
+            <div class="sidebar-item">
+              <span class="sidebar-label">Best Configurations</span>
+              <span id="modal-spot-config" class="sidebar-val">Westerly Operations</span>
+            </div>
+            <div class="sidebar-item">
+              <span class="sidebar-label">Getting There</span>
+              <span id="modal-spot-access" class="sidebar-val">Hatton Cross Tube Station</span>
+            </div>
+            <div class="sidebar-item">
+              <span class="sidebar-label">Spotter Tips</span>
+              <span id="modal-spot-tips" class="sidebar-val">Wide lens recommended</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Javascript -->
+  <script src="app.js?v=14"></script>
+</body>
+</html>
