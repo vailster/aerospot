@@ -10,9 +10,20 @@ let weatherDescription = 'Loading...';
 let timeMode = 'live'; // 'live' or 'custom'
 let customTime = null; // Simulated Date object
 
+let hourlyWeatherData = null; // Cache for simulated day hourly weather
+let fetchedDateStr = ''; // Cache date key (YYYY-MM-DD)
+
 // Coordinates for API & Reference (London central coordinates used for global wind)
 const LONDON_LAT = 51.4700; // Heathrow coordinates for weather sensitivity
 const LONDON_LON = -0.4543;
+
+// Helper to format date to YYYY-MM-DD
+function formatDateToYmd(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 // Heathrow schedule base date (Monday, Jan 5, 2026 is week 0)
 const LHR_BASE_DATE = new Date('2026-01-05T00:00:00Z');
@@ -216,6 +227,7 @@ function setTimeMode(mode) {
   }
   
   updateTime();
+  fetchLiveWeather();
 }
 
 function updateCustomTime(datetimeStr) {
@@ -228,6 +240,7 @@ function updateCustomTime(datetimeStr) {
   });
   
   updateTime();
+  fetchLiveWeather();
 }
 
 // SPA Routing Logic
@@ -332,43 +345,101 @@ function renderAirportDetail(code) {
   initLucide();
 }
 
-// Fetch Live Weather from Open-Meteo
+// Fetch weather based on active time (Live or Simulated)
 async function fetchLiveWeather() {
   if (windMode !== 'auto') return;
   
   weatherLoading = true;
   document.getElementById('weather-value').textContent = 'Fetching...';
   
-  try {
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LONDON_LAT}&longitude=${LONDON_LON}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m`);
-    if (!response.ok) throw new Error('API failure');
+  if (timeMode === 'live') {
+    // Live mode: fetch current real-time weather
+    try {
+      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LONDON_LAT}&longitude=${LONDON_LON}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m`);
+      if (!response.ok) throw new Error('API failure');
+      
+      const data = await response.json();
+      const current = data.current;
+      
+      const windSpeedKmh = current.wind_speed_10m;
+      windSpeed = Math.round(windSpeedKmh * 0.539957);
+      windDirection = current.wind_direction_10m;
+      weatherDescription = parseWmoCode(current.weather_code) + ` (${Math.round(current.temperature_2m)}°C)`;
+      
+      hourlyWeatherData = null;
+      fetchedDateStr = '';
+      weatherLoading = false;
+      updateUIWithWind();
+      calculateAirportOperations();
+    } catch (error) {
+      console.error('Weather fetch error:', error);
+      useFallbackWeather('Weather offline');
+    }
+  } else {
+    // Custom simulated time mode: query target date hourly forecast/archive
+    const targetDate = formatDateToYmd(localTime);
+    if (fetchedDateStr === targetDate && hourlyWeatherData) {
+      weatherLoading = false;
+      applyHourlyWeatherForTime();
+      return;
+    }
     
-    const data = await response.json();
-    const current = data.current;
-    
-    // Open-Meteo wind speed is in km/h. Convert to Knots.
-    const windSpeedKmh = current.wind_speed_10m;
-    windSpeed = Math.round(windSpeedKmh * 0.539957);
-    windDirection = current.wind_direction_10m;
-    
-    // Map WMO weather codes to text
-    weatherDescription = parseWmoCode(current.weather_code) + ` (${Math.round(current.temperature_2m)}°C)`;
-    
-    weatherLoading = false;
-    updateUIWithWind();
-    calculateAirportOperations();
-    
-  } catch (error) {
-    console.error('Weather fetch error:', error);
-    document.getElementById('weather-value').textContent = 'Offline (240° @ 10kt)';
-    
-    // Fallback to default Westerly operations
-    windDirection = 240;
-    windSpeed = 10;
-    weatherDescription = 'Weather unavailable';
-    calculateAirportOperations();
+    try {
+      // 1. Try standard forecast API (works for recent past and short-term future)
+      let url = `https://api.open-meteo.com/v1/forecast?latitude=${LONDON_LAT}&longitude=${LONDON_LON}&start_date=${targetDate}&end_date=${targetDate}&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m`;
+      let response = await fetch(url);
+      
+      // 2. If it fails, fallback to archive API (works for dates older than a few days)
+      if (!response.ok) {
+        url = `https://archive-api.open-meteo.com/v1/archive?latitude=${LONDON_LAT}&longitude=${LONDON_LON}&start_date=${targetDate}&end_date=${targetDate}&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m`;
+        response = await fetch(url);
+      }
+      
+      if (!response.ok) throw new Error('Weather API requests failed');
+      
+      const data = await response.json();
+      if (!data.hourly || !data.hourly.time || data.hourly.time.length === 0) {
+        throw new Error('No hourly data returned');
+      }
+      
+      hourlyWeatherData = data.hourly;
+      fetchedDateStr = targetDate;
+      weatherLoading = false;
+      applyHourlyWeatherForTime();
+    } catch (error) {
+      console.error('Simulated weather fetch error:', error);
+      useFallbackWeather('No forecast');
+    }
   }
 }
+
+// Extract hourly values from cached day forecast data
+function applyHourlyWeatherForTime() {
+  if (!hourlyWeatherData) return;
+  const hour = localTime.getHours();
+  
+  const temp = hourlyWeatherData.temperature_2m[hour];
+  const wmoCode = hourlyWeatherData.weather_code[hour];
+  const windKmh = hourlyWeatherData.wind_speed_10m[hour];
+  const windDir = hourlyWeatherData.wind_direction_10m[hour];
+  
+  windSpeed = Math.round(windKmh * 0.539957); // Convert km/h to knots
+  windDirection = windDir;
+  weatherDescription = parseWmoCode(wmoCode) + ` (${Math.round(temp)}°C)`;
+  
+  updateUIWithWind();
+  calculateAirportOperations();
+}
+
+function useFallbackWeather(desc) {
+  windDirection = 240;
+  windSpeed = 10;
+  weatherDescription = `${desc} (240° @ 10kt)`;
+  weatherLoading = false;
+  updateUIWithWind();
+  calculateAirportOperations();
+}
+
 
 // Convert WMO code to human-readable text
 function parseWmoCode(code) {
