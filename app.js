@@ -869,9 +869,9 @@ function renderMap() {
   
   // 1. Heathrow Map
   lhrContainer.innerHTML = `
-    <svg viewBox="0 0 400 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="0" width="400" height="200" class="svg-bg" />
-      <text x="15" y="25" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">HEATHROW (LHR) RUNWAY CONFIG</text>
+    <svg viewBox="0 15 400 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="15" width="400" height="140" class="svg-bg" />
+      <text x="15" y="27" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">HEATHROW (LHR) RUNWAY CONFIG</text>
       
       <!-- Paths (updated dynamically) - layered behind runways and text -->
       <path d="" id="path-lhr-approach" class="svg-flight-path approach" />
@@ -905,9 +905,9 @@ function renderMap() {
 
   // 2. Gatwick Map
   lgwContainer.innerHTML = `
-    <svg viewBox="0 0 400 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="0" width="400" height="200" class="svg-bg" />
-      <text x="15" y="25" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">GATWICK (LGW) RUNWAY CONFIG</text>
+    <svg viewBox="0 15 400 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="15" width="400" height="140" class="svg-bg" />
+      <text x="15" y="27" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">GATWICK (LGW) RUNWAY CONFIG</text>
       
       <!-- Paths (updated dynamically) - layered behind runways and text -->
       <path d="" id="path-lgw-approach" class="svg-flight-path approach" />
@@ -933,7 +933,7 @@ function renderMap() {
         <!-- Lowfield Heath Road (Westerly Takeoff / Side-on) -->
         <g class="spotter-pin-group" id="pin-lowfield_road" onclick="openSpotterModal('lowfield_road')">
           <circle cx="220" cy="140" r="4" class="svg-spotter-pin" />
-          <text x="220" y="160" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Lowfield Heath Rd</text>
+          <text x="220" y="125" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Lowfield Heath Rd</text>
         </g>
         
         <!-- LGW Crash Gate (08R Easterly landing) -->
@@ -947,9 +947,9 @@ function renderMap() {
 
   // 3. London City Map
   lcyContainer.innerHTML = `
-    <svg viewBox="0 0 400 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="0" width="400" height="200" class="svg-bg" />
-      <text x="15" y="25" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">LONDON CITY (LCY) RUNWAY CONFIG</text>
+    <svg viewBox="0 15 400 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="15" width="400" height="140" class="svg-bg" />
+      <text x="15" y="27" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">LONDON CITY (LCY) RUNWAY CONFIG</text>
       
       <!-- Paths (updated dynamically) - layered behind runways and text -->
       <path d="" id="path-lcy-approach" class="svg-flight-path approach" />
