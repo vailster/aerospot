@@ -1024,12 +1024,12 @@ function updateMapFlightPaths(ops) {
     
     // Heathrow Westerly approach from East (right to left)
     lhrApproach.setAttribute('d', `M 390 ${landingY} L 310 ${landingY}`);
-    lhrDeparture.setAttribute('d', `M 70 ${takeoffY} L 10 ${takeoffY}`);
+    lhrDeparture.setAttribute('d', `M 40 ${takeoffY} L 10 ${takeoffY}`);
     
     // Gatwick: landing 26L
     if (lgwRunway) lgwRunway.setAttribute('class', 'svg-runway active');
     lgwApproach.setAttribute('d', `M 390 110 L 310 110`);
-    lgwDeparture.setAttribute('d', `M 70 110 L 10 110`);
+    lgwDeparture.setAttribute('d', `M 35 110 L 10 110`);
     
     // City: landing 27 (if open)
     if (isLcyClosed) {
@@ -1039,7 +1039,7 @@ function updateMapFlightPaths(ops) {
     } else {
       if (lcyRunway) lcyRunway.setAttribute('class', 'svg-runway active');
       lcyApproach.setAttribute('d', `M 390 100 L 305 100`);
-      lcyDeparture.setAttribute('d', `M 95 100 L 10 100`);
+      lcyDeparture.setAttribute('d', `M 70 100 L 10 100`);
     }
     
   } else {
@@ -1051,12 +1051,12 @@ function updateMapFlightPaths(ops) {
       lhrSouth.setAttribute('class', 'svg-runway active'); // Land 09R
       lhrNorth.setAttribute('class', 'svg-runway'); // Takeoff 09L
     }
-    lhrApproach.setAttribute('d', `M 10 120 L 70 120`);
+    lhrApproach.setAttribute('d', `M 10 120 L 40 120`);
     lhrDeparture.setAttribute('d', `M 310 80 L 390 80`);
     
     // Gatwick: landing 08R
     if (lgwRunway) lgwRunway.setAttribute('class', 'svg-runway active');
-    lgwApproach.setAttribute('d', `M 10 110 L 70 110`);
+    lgwApproach.setAttribute('d', `M 10 110 L 35 110`);
     lgwDeparture.setAttribute('d', `M 310 110 L 390 110`);
     
     // City: landing 09 (if open)
@@ -1066,7 +1066,7 @@ function updateMapFlightPaths(ops) {
       lcyDeparture.setAttribute('d', '');
     } else {
       if (lcyRunway) lcyRunway.setAttribute('class', 'svg-runway active');
-      lcyApproach.setAttribute('d', `M 10 100 L 95 100`);
+      lcyApproach.setAttribute('d', `M 10 100 L 70 100`);
       lcyDeparture.setAttribute('d', `M 305 100 L 390 100`);
     }
   }
