@@ -265,9 +265,7 @@ function handleRoute() {
   }
   
   // Update sidebar spotter tips based on page view
-  const tipLhr = document.getElementById('tip-lhr');
-  const tipLgw = document.getElementById('tip-lgw');
-  const tipLcy = document.getElementById('tip-lcy');
+  const sidebarTips = document.getElementById('sidebar-spotting-tips');
   const sidebarTimeSim = document.getElementById('sidebar-time-simulator');
   
   if (sidebarTimeSim) {
@@ -278,21 +276,14 @@ function handleRoute() {
     }
   }
   
-  if (tipLhr && tipLgw && tipLcy) {
+  if (sidebarTips) {
     if (hash === '#/') {
-      tipLhr.classList.remove('hidden');
-      tipLgw.classList.remove('hidden');
-      tipLcy.classList.remove('hidden');
+      sidebarTips.classList.remove('hidden');
     } else {
-      tipLhr.classList.add('hidden');
-      tipLgw.classList.add('hidden');
-      tipLcy.classList.add('hidden');
-      
-      if (hash === '#/lhr') tipLhr.classList.remove('hidden');
-      else if (hash === '#/lgw') tipLgw.classList.remove('hidden');
-      else if (hash === '#/lcy') tipLcy.classList.remove('hidden');
+      sidebarTips.classList.add('hidden');
     }
   }
+
   
   initLucide();
 }

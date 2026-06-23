@@ -1485,3 +1485,26 @@ input[type="range"]:disabled::-webkit-slider-thumb {
   }
 }
 
+/* Spotter Tip box inside Spotting Locations cards */
+.spotter-tip-box {
+  margin-bottom: 1rem;
+  background: rgba(59, 130, 246, 0.08);
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  font-size: 0.75rem;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.35;
+}
+
+.spotter-tip-box i {
+  color: var(--color-primary);
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+
