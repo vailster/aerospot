@@ -897,6 +897,16 @@ function renderMap() {
   // 2. Gatwick Map
   lgwContainer.innerHTML = `
     <svg viewBox="0 15 400 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="runway-grad-westerly" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="var(--color-primary)" />
+          <stop offset="100%" stop-color="var(--color-success)" />
+        </linearGradient>
+        <linearGradient id="runway-grad-easterly" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="var(--color-success)" />
+          <stop offset="100%" stop-color="var(--color-primary)" />
+        </linearGradient>
+      </defs>
       <rect x="0" y="15" width="400" height="140" class="svg-bg" />
       <text x="15" y="27" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">GATWICK (LGW) RUNWAY CONFIG</text>
       
@@ -939,6 +949,16 @@ function renderMap() {
   // 3. London City Map
   lcyContainer.innerHTML = `
     <svg viewBox="0 15 400 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="runway-grad-westerly" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="var(--color-primary)" />
+          <stop offset="100%" stop-color="var(--color-success)" />
+        </linearGradient>
+        <linearGradient id="runway-grad-easterly" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="var(--color-success)" />
+          <stop offset="100%" stop-color="var(--color-primary)" />
+        </linearGradient>
+      </defs>
       <rect x="0" y="15" width="400" height="140" class="svg-bg" />
       <text x="15" y="27" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">LONDON CITY (LCY) RUNWAY CONFIG</text>
       
@@ -1008,14 +1028,14 @@ function updateMapFlightPaths(ops) {
     const isEvenWeek = (weeksDiff % 2 === 0);
     const activeLandingIsSouth = isEvenWeek ? isAM : !isAM;
     
-    // Highlight active landing runway
+    // Highlight active landing (arrival) and takeoff (departure) runways
     if (lhrNorth && lhrSouth) {
       if (activeLandingIsSouth) {
-        lhrSouth.setAttribute('class', 'svg-runway active');
-        lhrNorth.setAttribute('class', 'svg-runway');
+        lhrSouth.setAttribute('class', 'svg-runway arrival');
+        lhrNorth.setAttribute('class', 'svg-runway departure');
       } else {
-        lhrNorth.setAttribute('class', 'svg-runway active');
-        lhrSouth.setAttribute('class', 'svg-runway');
+        lhrNorth.setAttribute('class', 'svg-runway arrival');
+        lhrSouth.setAttribute('class', 'svg-runway departure');
       }
     }
     
@@ -1027,7 +1047,7 @@ function updateMapFlightPaths(ops) {
     lhrDeparture.setAttribute('d', `M 40 ${takeoffY} L 10 ${takeoffY}`);
     
     // Gatwick: landing 26L
-    if (lgwRunway) lgwRunway.setAttribute('class', 'svg-runway active');
+    if (lgwRunway) lgwRunway.setAttribute('class', 'svg-runway both-westerly');
     lgwApproach.setAttribute('d', `M 390 110 L 310 110`);
     lgwDeparture.setAttribute('d', `M 35 110 L 10 110`);
     
@@ -1037,7 +1057,7 @@ function updateMapFlightPaths(ops) {
       lcyApproach.setAttribute('d', '');
       lcyDeparture.setAttribute('d', '');
     } else {
-      if (lcyRunway) lcyRunway.setAttribute('class', 'svg-runway active');
+      if (lcyRunway) lcyRunway.setAttribute('class', 'svg-runway both-westerly');
       lcyApproach.setAttribute('d', `M 390 100 L 305 100`);
       lcyDeparture.setAttribute('d', `M 70 100 L 10 100`);
     }
@@ -1048,14 +1068,14 @@ function updateMapFlightPaths(ops) {
     // Heathrow: Arrivals Northern 09L / Southern 09R.
     // LHR easterly default: arrivals Southern (09R) and departures Northern (09L).
     if (lhrNorth && lhrSouth) {
-      lhrSouth.setAttribute('class', 'svg-runway active'); // Land 09R
-      lhrNorth.setAttribute('class', 'svg-runway'); // Takeoff 09L
+      lhrSouth.setAttribute('class', 'svg-runway arrival'); // Land 09R
+      lhrNorth.setAttribute('class', 'svg-runway departure'); // Takeoff 09L
     }
     lhrApproach.setAttribute('d', `M 10 120 L 40 120`);
     lhrDeparture.setAttribute('d', `M 310 80 L 390 80`);
     
     // Gatwick: landing 08R
-    if (lgwRunway) lgwRunway.setAttribute('class', 'svg-runway active');
+    if (lgwRunway) lgwRunway.setAttribute('class', 'svg-runway both-easterly');
     lgwApproach.setAttribute('d', `M 10 110 L 35 110`);
     lgwDeparture.setAttribute('d', `M 310 110 L 390 110`);
     
@@ -1065,7 +1085,7 @@ function updateMapFlightPaths(ops) {
       lcyApproach.setAttribute('d', '');
       lcyDeparture.setAttribute('d', '');
     } else {
-      if (lcyRunway) lcyRunway.setAttribute('class', 'svg-runway active');
+      if (lcyRunway) lcyRunway.setAttribute('class', 'svg-runway both-easterly');
       lcyApproach.setAttribute('d', `M 10 100 L 70 100`);
       lcyDeparture.setAttribute('d', `M 305 100 L 390 100`);
     }

@@ -517,9 +517,25 @@ input[type="range"]:disabled::-webkit-slider-thumb {
   stroke-width: 4;
 }
 
-.svg-runway.active {
+.svg-runway.active,
+.svg-runway.arrival {
   stroke: var(--color-success);
   filter: drop-shadow(0 0 2px var(--color-success-glow));
+}
+
+.svg-runway.departure {
+  stroke: var(--color-primary);
+  filter: drop-shadow(0 0 2px var(--color-primary-glow));
+}
+
+.svg-runway.both-westerly {
+  stroke: url(#runway-grad-westerly);
+  filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.35)) drop-shadow(0 0 2px rgba(16, 185, 129, 0.35));
+}
+
+.svg-runway.both-easterly {
+  stroke: url(#runway-grad-easterly);
+  filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.35)) drop-shadow(0 0 2px rgba(56, 189, 248, 0.35));
 }
 
 .svg-flight-path {
