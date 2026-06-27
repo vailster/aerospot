@@ -1,4 +1,5 @@
 // Plane Spotting & Airport Operations Logical Engine
+// Built for AeroSpot SPA Dashboard
 
 // Global State
 let windMode = 'auto'; // 'auto' or 'manual'
