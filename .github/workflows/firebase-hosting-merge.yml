@@ -11,11 +11,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AEROSPOT_VAILSTER }}
-          channelId: live
-          projectId: aerospot-vailster
         env:
-          DEBUG: '*'
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AEROSPOT_VAILSTER }}
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" > service-account.json
+          export GOOGLE_APPLICATION_CREDENTIALS=service-account.json
+          npx firebase-tools deploy --only hosting --project aerospot-vailster
+          rm -f service-account.json

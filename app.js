@@ -259,13 +259,13 @@ function handleRoute() {
     document.getElementById('view-dashboard').classList.remove('hidden');
   } else if (hash === '#/lhr') {
     document.getElementById('view-lhr').classList.remove('hidden');
-    renderAirportDetail('LHR');
+    renderAirportDetail('LHR', true);
   } else if (hash === '#/lgw') {
     document.getElementById('view-lgw').classList.remove('hidden');
-    renderAirportDetail('LGW');
+    renderAirportDetail('LGW', true);
   } else if (hash === '#/lcy') {
     document.getElementById('view-lcy').classList.remove('hidden');
-    renderAirportDetail('LCY');
+    renderAirportDetail('LCY', true);
   }
   
   // Update sidebar spotter tips and time simulator based on page view
@@ -296,8 +296,15 @@ function handleRoute() {
   initLucide();
 }
 
+// Track last rendered configuration to avoid DOM thrashing
+let lastRenderedConfig = {
+  LHR: '',
+  LGW: '',
+  LCY: ''
+};
+
 // Render dynamic spotting list for individual airport detail views
-function renderAirportDetail(code) {
+function renderAirportDetail(code, force = false) {
   let filterText = '';
   let listContainerId = '';
   if (code === 'LHR') {
@@ -324,6 +331,13 @@ function renderAirportDetail(code) {
   if (code === 'LHR') activeArr = lhrActiveArr;
   else if (code === 'LGW') activeArr = lgwActiveArr;
   else if (code === 'LCY') activeArr = lcyActiveArr;
+  
+  // Skip rendering if configuration hasn't changed and DOM is already built
+  if (!force && lastRenderedConfig[code] === activeArr && container.children.length > 0) {
+    return;
+  }
+  
+  lastRenderedConfig[code] = activeArr;
   
   container.innerHTML = spots.map(spot => {
     const isActive = spot.config.includes(activeArr);
