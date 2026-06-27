@@ -17,3 +17,5 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AEROSPOT_VAILSTER }}
           channelId: live
           projectId: aerospot-vailster
+        env:
+          DEBUG: '*'
