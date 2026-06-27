@@ -1119,6 +1119,47 @@ input[type="range"]:disabled::-webkit-slider-thumb {
   color: var(--color-warning);
 }
 
+/* Reset time button (visible when time is simulated) */
+.status-widget.simulated-active .reset-time-btn {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  color: var(--color-warning);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+  margin-left: 0.5rem;
+  outline: none;
+}
+
+.status-widget.simulated-active .reset-time-btn:hover {
+  background: var(--color-warning);
+  border-color: var(--color-warning);
+  color: #05070c;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+.status-widget.simulated-active .reset-time-btn i,
+.status-widget.simulated-active .reset-time-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: inherit !important;
+  stroke-width: 2.5px;
+  transition: transform var(--transition-normal);
+}
+
+.status-widget.simulated-active .reset-time-btn:hover i,
+.status-widget.simulated-active .reset-time-btn:hover svg {
+  transform: rotate(-180deg);
+}
+
+.reset-time-btn.hidden {
+  display: none !important;
+}
+
 /* Spotting Locations List */
 .spotting-list {
   display: flex;

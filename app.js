@@ -178,14 +178,17 @@ function updateTime() {
   
   const timeLabel = document.querySelector('#time-display .widget-label');
   const timeWidget = document.getElementById('time-display');
+  const resetBtn = document.getElementById('btn-reset-time');
   
   if (timeMode === 'custom') {
     timeString += ' (SIM)';
     if (timeLabel) timeLabel.textContent = 'Simulated Time';
     if (timeWidget) timeWidget.classList.add('simulated-active');
+    if (resetBtn) resetBtn.classList.remove('hidden');
   } else {
     if (timeLabel) timeLabel.textContent = 'Local Time';
     if (timeWidget) timeWidget.classList.remove('simulated-active');
+    if (resetBtn) resetBtn.classList.add('hidden');
   }
   
   document.getElementById('local-time-value').textContent = timeString;
