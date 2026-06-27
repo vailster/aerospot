@@ -267,23 +267,27 @@ function handleRoute() {
     renderAirportDetail('LCY');
   }
   
-  // Update sidebar spotter tips based on page view
+  // Update sidebar spotter tips and time simulator based on page view
   const sidebarTips = document.getElementById('sidebar-spotting-tips');
   const sidebarTimeSim = document.getElementById('sidebar-time-simulator');
   
   if (sidebarTimeSim) {
-    if (hash === '#/') {
-      sidebarTimeSim.classList.add('hidden');
-    } else {
-      sidebarTimeSim.classList.remove('hidden');
-    }
+    sidebarTimeSim.classList.remove('hidden');
   }
   
   if (sidebarTips) {
     if (hash === '#/') {
-      sidebarTips.classList.remove('hidden');
-    } else {
       sidebarTips.classList.add('hidden');
+    } else {
+      sidebarTips.classList.remove('hidden');
+      
+      const tipLhr = document.getElementById('tip-lhr');
+      const tipLgw = document.getElementById('tip-lgw');
+      const tipLcy = document.getElementById('tip-lcy');
+      
+      if (tipLhr) tipLhr.classList.toggle('hidden', hash !== '#/lhr');
+      if (tipLgw) tipLgw.classList.toggle('hidden', hash !== '#/lgw');
+      if (tipLcy) tipLcy.classList.toggle('hidden', hash !== '#/lcy');
     }
   }
 
