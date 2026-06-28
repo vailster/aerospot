@@ -16,5 +16,16 @@ jobs:
         run: |
           echo "$FIREBASE_SERVICE_ACCOUNT" > service-account.json
           export GOOGLE_APPLICATION_CREDENTIALS=service-account.json
-          npx firebase-tools deploy --only hosting --project aerospot-vailster
+          set +e
+          OUTPUT=$(npx firebase-tools deploy --only hosting --project aerospot-vailster 2>&1)
+          EXIT_CODE=$?
+          echo "$OUTPUT"
           rm -f service-account.json
+          if [ $EXIT_CODE -ne 0 ]; then
+            if echo "$OUTPUT" | grep -q "is the current active version"; then
+              echo "Firebase reported version is already active. Treating as success."
+              exit 0
+            else
+              exit $EXIT_CODE
+            fi
+          fi
