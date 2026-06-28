@@ -1388,26 +1388,47 @@ function renderUpcomingArrivals(code) {
     return;
   }
   
-  container.innerHTML = flights.map(flight => {
+  const rowsHtml = flights.map(flight => {
     let statusClass = 'status-scheduled';
     if (flight.status === 'On Time') statusClass = 'status-ontime';
     else if (flight.status === 'Final Approach') statusClass = 'status-final';
     else if (flight.status === 'Landed') statusClass = 'status-landed';
     
     return `
-      <div class="arrival-item">
-        <div class="arrival-meta">
-          <span class="arrival-time">${flight.time}</span>
-          <span class="arrival-flight">${flight.flightNumber}</span>
+      <div class="fids-row">
+        <div class="fids-col-time">
+          <span class="fids-time">${flight.time}</span>
         </div>
-        <div class="arrival-details">
-          <div class="arrival-route">${flight.origin}</div>
-          <div class="arrival-info">${flight.airline} • ${flight.aircraft}</div>
+        <div class="fids-col-flight">
+          <span class="fids-flight-no">${flight.flightNumber}</span>
+          <span class="fids-airline">${flight.airline}</span>
         </div>
-        <div class="arrival-status ${statusClass}">${flight.status}</div>
+        <div class="fids-col-route">
+          <span class="fids-origin">${flight.origin}</span>
+          <span class="fids-aircraft">${flight.aircraft}</span>
+        </div>
+        <div class="fids-col-status">
+          <span class="fids-status ${statusClass}">
+            <span class="status-dot"></span>${flight.status}
+          </span>
+        </div>
       </div>
     `;
   }).join('');
+
+  container.innerHTML = `
+    <div class="fids-table">
+      <div class="fids-header">
+        <span class="fids-col-time">Time</span>
+        <span class="fids-col-flight">Flight</span>
+        <span class="fids-col-route">Origin / Aircraft</span>
+        <span class="fids-col-status" style="text-align: right;">Status</span>
+      </div>
+      <div class="fids-body">
+        ${rowsHtml}
+      </div>
+    </div>
+  `;
 }
 
 // App Entry Point Trigger (placed at bottom to ensure all constants are initialized)
