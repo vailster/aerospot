@@ -154,11 +154,6 @@ function initApp() {
   setInterval(fetchLiveWeather, 300000); // 5 mins update
 }
 
-if (document.readyState === 'loading') {
-  window.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
 
 function initLucide() {
   if (window.lucide) {
@@ -1413,4 +1408,11 @@ function renderUpcomingArrivals(code) {
       </div>
     `;
   }).join('');
+}
+
+// App Entry Point Trigger (placed at bottom to ensure all constants are initialized)
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }
