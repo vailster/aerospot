@@ -126,6 +126,7 @@
             <li id="tip-lhr"><strong>LHR:</strong> Alternates runways at 15:00 local time during Westerly operations for community noise relief.</li>
             <li id="tip-lgw"><strong>LGW:</strong> Standard westerly operations are active 70-75% of the year.</li>
             <li id="tip-lcy"><strong>LCY:</strong> Closed from Sat 13:00 to Sun 10:00. Steep 5.5° glide path in use.</li>
+            <li id="tip-bqh"><strong>BQH:</strong> Primarily a business aviation airport; home to the Biggin Hill Heritage Hangar's Spitfires.</li>
           </ul>
         </section>
       </aside>
@@ -243,6 +244,36 @@
               </div>
 
               <a href="#/lcy" class="card-corner-link" aria-label="View London City Operations & Map">
+                <i data-lucide="arrow-up-right"></i>
+              </a>
+            </div>
+
+            <!-- Biggin Hill BQH Card -->
+            <div class="airport-card glass-card" id="card-bqh">
+              <div class="airport-header">
+                <div class="airport-title">
+                  <h3>Biggin Hill</h3>
+                  <span class="airport-code">BQH / EGKB</span>
+                </div>
+                <span class="status-badge" id="bqh-ops-badge">Westerly Ops</span>
+              </div>
+              
+              <div class="runways-status">
+                <div class="runway-row">
+                  <span class="runway-label">Active Runway</span>
+                  <span class="runway-value active-green" id="bqh-active-runway">21</span>
+                </div>
+              </div>
+
+              <div class="respite-schedule">
+                <h4><i data-lucide="plane"></i> Aviation Activity</h4>
+                <p class="desc-text" id="bqh-runway-desc">Runway 21 active. Aircraft approach from the Northeast and land heading Southwest.</p>
+                <div class="preference-note">
+                  <i data-lucide="info"></i> Dedicated business aviation hub and home to the Biggin Hill Heritage Hangar.
+                </div>
+              </div>
+
+              <a href="#/bqh" class="card-corner-link" aria-label="View Biggin Hill Operations & Map">
                 <i data-lucide="arrow-up-right"></i>
               </a>
             </div>
@@ -471,6 +502,74 @@
                   </div>
                 </div>
                 <div class="airport-map-large" id="detail-map-lcy-container"></div>
+                <div class="map-tips">
+                  <i data-lucide="info"></i>
+                  <span>Click on any yellow pin on the map to open photos and detailed directions for that spot. Highlighted pins indicate optimal conditions right now.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Biggin Hill (BQH) Detail View -->
+        <div id="view-bqh" class="page-view hidden">
+          <div class="detail-header glass-card">
+            <a href="#/" class="back-link"><i data-lucide="chevron-left"></i> Back to Dashboard</a>
+            <div class="detail-title-area">
+              <h2>Biggin Hill Airport Operations</h2>
+              <span class="status-badge" id="detail-bqh-ops-badge">Westerly Ops</span>
+            </div>
+            <span class="airport-code-large">BQH / EGKB</span>
+          </div>
+
+          <div class="detail-grid">
+            <!-- Left Side: Operations Details -->
+            <div class="detail-info-pane">
+              <!-- Active Runways Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="plane-takeoff"></i> Active Runways</h3>
+                <div class="runways-status">
+                  <div class="runway-row">
+                    <span class="runway-label">Active Runway</span>
+                    <span class="runway-value active-green" id="detail-bqh-active-runway">21</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- General Aviation & Heritage Card -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="info"></i> General Aviation & Heritage</h3>
+                <p class="desc-text" id="detail-bqh-runway-desc">Runway 21 active. Aircraft approach from the Northeast and land heading Southwest.</p>
+                <div class="preference-note">
+                  <i data-lucide="help-circle"></i> Famous Battle of Britain airfield, now handling corporate travel and vintage flights.
+                </div>
+              </div>
+
+              <!-- Spotting Locations List -->
+              <div class="glass-card detail-card">
+                <h3><i data-lucide="map-pin"></i> Spotting Locations</h3>
+                <div class="spotter-tip-box">
+                  <i data-lucide="info"></i>
+                  <span><strong>Tip:</strong> Head to Maitland View for The Lookout Coffee Shop to spot directly over the main apron.</span>
+                </div>
+                <div class="spotting-list" id="bqh-spotting-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Large Interactive Map -->
+            <div class="detail-map-pane">
+              <div class="glass-card map-card">
+                <div class="map-card-header">
+                  <h3><i data-lucide="map"></i> Operations & Spotting Spot Map</h3>
+                  <div class="legend">
+                    <div class="legend-item"><span class="line-dot approach"></span> Arrivals (Approach)</div>
+                    <div class="legend-item"><span class="line-dot departure"></span> Departures (Climb-out)</div>
+                    <div class="legend-item"><span class="pin-dot"></span> Spotting Location</div>
+                  </div>
+                </div>
+                <div class="airport-map-large" id="detail-map-bqh-container"></div>
                 <div class="map-tips">
                   <i data-lucide="info"></i>
                   <span>Click on any yellow pin on the map to open photos and detailed directions for that spot. Highlighted pins indicate optimal conditions right now.</span>

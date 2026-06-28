@@ -128,6 +128,34 @@ const SPOTTING_SPOTS = [
     tips: 'Great for seeing the steep 5.5° descent profile of aircraft flying past Canary Wharf skyscrapers.',
     description: 'A bridge that crosses the docks immediately west of the runway. Offers a dramatic head-on look at aircraft descending steeply over the dock barrier toward runway 09.',
     image: 'royal_docks.jpg'
+  },
+  {
+    id: 'bqh_lookout',
+    name: 'The Lookout Coffee Shop',
+    airport: 'Biggin Hill (BQH)',
+    lat: 51.3308,
+    lon: 0.0335,
+    mapX: 320,
+    mapY: 120,
+    config: 'Westerly Operations (Runway 21 Arrivals & Taxi)',
+    access: 'Located on Maitland View (TN16 3BN). Easy road access with free parking.',
+    tips: 'Grab a coffee and sit on the outdoor patio. Excellent views of aircraft taxiing right past the fence. Telephoto lens (70-200mm) is ideal.',
+    description: 'A fantastic coffee shop directly overlooking the runway and parking aprons. Perfect for relaxing and watching business jets and vintage aircraft like Spitfires.',
+    image: 'biggin_hill.jpg'
+  },
+  {
+    id: 'bqh_saltbox',
+    name: 'Saltbox Hill (A233)',
+    airport: 'Biggin Hill (BQH)',
+    lat: 51.3204,
+    lon: 0.0152,
+    mapX: 65,
+    mapY: 100,
+    config: 'Easterly Operations (Runway 03 Arrivals)',
+    access: 'Located along the A233 Main Road. Take a bus to "Main Road / SaltBox Hill" stop.',
+    tips: 'Great for low-altitude shots of aircraft descending to land. Bring boots if it has been raining.',
+    description: 'A grassy area located under the approach path to runway 03. Great for low-altitude shots of aircraft descending to land.',
+    image: 'biggin_hill.jpg'
   }
 ];
 
@@ -261,6 +289,9 @@ function handleRoute() {
   } else if (hash === '#/lcy') {
     document.getElementById('view-lcy').classList.remove('hidden');
     renderAirportDetail('LCY', true);
+  } else if (hash === '#/bqh') {
+    document.getElementById('view-bqh').classList.remove('hidden');
+    renderAirportDetail('BQH', true);
   }
   
   // Update sidebar spotter tips and time simulator based on page view
@@ -280,10 +311,12 @@ function handleRoute() {
       const tipLhr = document.getElementById('tip-lhr');
       const tipLgw = document.getElementById('tip-lgw');
       const tipLcy = document.getElementById('tip-lcy');
+      const tipBqh = document.getElementById('tip-bqh');
       
       if (tipLhr) tipLhr.classList.toggle('hidden', hash !== '#/lhr');
       if (tipLgw) tipLgw.classList.toggle('hidden', hash !== '#/lgw');
       if (tipLcy) tipLcy.classList.toggle('hidden', hash !== '#/lcy');
+      if (tipBqh) tipBqh.classList.toggle('hidden', hash !== '#/bqh');
     }
   }
 
@@ -295,7 +328,8 @@ function handleRoute() {
 let lastRenderedConfig = {
   LHR: '',
   LGW: '',
-  LCY: ''
+  LCY: '',
+  BQH: ''
 };
 
 // Render dynamic spotting list for individual airport detail views
@@ -311,6 +345,9 @@ function renderAirportDetail(code, force = false) {
   } else if (code === 'LCY') {
     filterText = 'City';
     listContainerId = 'lcy-spotting-list';
+  } else if (code === 'BQH') {
+    filterText = 'Biggin Hill';
+    listContainerId = 'bqh-spotting-list';
   }
   
   const container = document.getElementById(listContainerId);
@@ -321,11 +358,13 @@ function renderAirportDetail(code, force = false) {
   const lhrActiveArr = document.getElementById('lhr-arrivals-runway') ? document.getElementById('lhr-arrivals-runway').textContent.trim() : '';
   const lgwActiveArr = document.getElementById('lgw-main-runway') ? document.getElementById('lgw-main-runway').textContent.trim() : '';
   const lcyActiveArr = document.getElementById('lcy-active-runway') ? document.getElementById('lcy-active-runway').textContent.trim() : '';
+  const bqhActiveArr = document.getElementById('bqh-active-runway') ? document.getElementById('bqh-active-runway').textContent.trim() : '';
   
   let activeArr = '';
   if (code === 'LHR') activeArr = lhrActiveArr;
   else if (code === 'LGW') activeArr = lgwActiveArr;
   else if (code === 'LCY') activeArr = lcyActiveArr;
+  else if (code === 'BQH') activeArr = bqhActiveArr;
   
   // Skip rendering if configuration hasn't changed and DOM is already built
   if (!force && lastRenderedConfig[code] === activeArr && container.children.length > 0) {
@@ -587,6 +626,7 @@ function calculateAirportOperations() {
   updateHeathrowOps(opsDirection);
   updateGatwickOps(opsDirection);
   updateLondonCityOps(opsDirection);
+  updateBigginHillOps(opsDirection);
   
   // Update map visual tracks
   updateMapFlightPaths(opsDirection);
@@ -596,6 +636,7 @@ function calculateAirportOperations() {
   if (hash === '#/lhr') renderAirportDetail('LHR');
   else if (hash === '#/lgw') renderAirportDetail('LGW');
   else if (hash === '#/lcy') renderAirportDetail('LCY');
+  else if (hash === '#/bqh') renderAirportDetail('BQH');
 }
 
 // Heathrow-specific Scheduling & Respite Engine
@@ -899,13 +940,72 @@ function updateLondonCityOps(ops) {
   }
 }
 
+// Biggin Hill Operations Engine
+function updateBigginHillOps(ops) {
+  const badge = document.getElementById('bqh-ops-badge');
+  const detailBadge = document.getElementById('detail-bqh-ops-badge');
+  
+  const activeRunway = document.getElementById('bqh-active-runway');
+  const detailActiveRunway = document.getElementById('detail-bqh-active-runway');
+  
+  const desc = document.getElementById('bqh-runway-desc');
+  const detailDesc = document.getElementById('detail-bqh-runway-desc');
+  
+  if (ops === 'westerly') {
+    const setBadgeText = (el) => {
+      if (el) {
+        el.textContent = 'Westerly Ops';
+        el.className = 'status-badge westerly';
+      }
+    };
+    setBadgeText(badge);
+    setBadgeText(detailBadge);
+    
+    const setActive = (el) => {
+      if (el) {
+        el.textContent = '21';
+        el.className = 'runway-value active-green';
+      }
+    };
+    setActive(activeRunway);
+    setActive(detailActiveRunway);
+    
+    const valText = 'Runway 21 active. Aircraft approach from the Northeast and land heading Southwest.';
+    if (desc) desc.textContent = valText;
+    if (detailDesc) detailDesc.textContent = valText;
+  } else {
+    const setBadgeText = (el) => {
+      if (el) {
+        el.textContent = 'Easterly Ops';
+        el.className = 'status-badge easterly';
+      }
+    };
+    setBadgeText(badge);
+    setBadgeText(detailBadge);
+    
+    const setActive = (el) => {
+      if (el) {
+        el.textContent = '03';
+        el.className = 'runway-value active-green';
+      }
+    };
+    setActive(activeRunway);
+    setActive(detailActiveRunway);
+    
+    const valText = 'Runway 03 active. Aircraft approach from the Southwest and land heading Northeast.';
+    if (desc) desc.textContent = valText;
+    if (detailDesc) detailDesc.textContent = valText;
+  }
+}
+
 // Render Interactive SVG Maps (one for each airport card)
 function renderMap() {
   const lhrContainer = document.getElementById('detail-map-lhr-container');
   const lgwContainer = document.getElementById('detail-map-lgw-container');
   const lcyContainer = document.getElementById('detail-map-lcy-container');
+  const bqhContainer = document.getElementById('detail-map-bqh-container');
   
-  if (!lhrContainer || !lgwContainer || !lcyContainer) return;
+  if (!lhrContainer || !lgwContainer || !lcyContainer || !bqhContainer) return;
   
   // 1. Heathrow Map
   lhrContainer.innerHTML = `
@@ -1041,6 +1141,48 @@ function renderMap() {
       </g>
     </svg>
   `;
+
+  // 4. Biggin Hill Map
+  bqhContainer.innerHTML = `
+    <svg viewBox="0 15 400 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="runway-grad-westerly" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="var(--color-primary)" />
+          <stop offset="100%" stop-color="var(--color-success)" />
+        </linearGradient>
+        <linearGradient id="runway-grad-easterly" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="var(--color-success)" />
+          <stop offset="100%" stop-color="var(--color-primary)" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="15" width="400" height="140" class="svg-bg" />
+      <text x="15" y="27" fill="var(--text-muted)" font-family="Outfit" font-size="10" font-weight="700">BIGGIN HILL (BQH) RUNWAY CONFIG</text>
+      
+      <!-- Paths (updated dynamically) -->
+      <path d="" id="path-bqh-approach" class="svg-flight-path approach" />
+      <path d="" id="path-bqh-departure" class="svg-flight-path departure" />
+
+      <!-- Runway 03/21 -->
+      <line x1="80" y1="100" x2="300" y2="100" id="map-runway-bqh" class="svg-runway" />
+      <text x="50" y="103" class="svg-runway-label">03</text>
+      <text x="312" y="103" class="svg-runway-label">21</text>
+      
+      <!-- Spotter Pins -->
+      <g id="pins-bqh">
+        <!-- The Lookout Coffee Shop (Runway 21 / Apron) -->
+        <g class="spotter-pin-group" id="pin-bqh_lookout" onclick="openSpotterModal('bqh_lookout')">
+          <circle cx="320" cy="120" r="4" class="svg-spotter-pin" />
+          <text x="320" y="140" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Lookout Cafe (21)</text>
+        </g>
+        
+        <!-- Saltbox Hill (Runway 03 approach) -->
+        <g class="spotter-pin-group" id="pin-bqh_saltbox" onclick="openSpotterModal('bqh_saltbox')">
+          <circle cx="65" cy="100" r="4" class="svg-spotter-pin" />
+          <text x="65" y="125" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Saltbox Hill (03)</text>
+        </g>
+      </g>
+    </svg>
+  `;
   
   // Call ops calculations to populate paths immediately
   calculateAirportOperations();
@@ -1054,13 +1196,16 @@ function updateMapFlightPaths(ops) {
   const lgwDeparture = document.getElementById('path-lgw-departure');
   const lcyApproach = document.getElementById('path-lcy-approach');
   const lcyDeparture = document.getElementById('path-lcy-departure');
+  const bqhApproach = document.getElementById('path-bqh-approach');
+  const bqhDeparture = document.getElementById('path-bqh-departure');
   
   const lhrNorth = document.getElementById('map-runway-lhr-north');
   const lhrSouth = document.getElementById('map-runway-lhr-south');
   const lgwRunway = document.getElementById('map-runway-lgw');
   const lcyRunway = document.getElementById('map-runway-lcy');
+  const bqhRunway = document.getElementById('map-runway-bqh');
   
-  if (!lhrApproach || !lgwApproach || !lcyApproach) return;
+  if (!lhrApproach || !lgwApproach || !lcyApproach || !bqhApproach) return;
 
   const lcyActiveArr = document.getElementById('lcy-active-runway').textContent.trim();
   const isLcyClosed = (lcyActiveArr === 'Closed');
@@ -1111,6 +1256,11 @@ function updateMapFlightPaths(ops) {
       lcyDeparture.setAttribute('d', `M 70 100 L 10 100`);
     }
     
+    // Biggin Hill: landing 21
+    if (bqhRunway) bqhRunway.setAttribute('class', 'svg-runway both-westerly');
+    bqhApproach.setAttribute('d', `M 390 100 L 305 100`);
+    bqhDeparture.setAttribute('d', `M 70 100 L 10 100`);
+    
   } else {
     // Easterly Operations: landing towards east (arrivals from west)
     
@@ -1138,6 +1288,11 @@ function updateMapFlightPaths(ops) {
       lcyApproach.setAttribute('d', `M 10 100 L 70 100`);
       lcyDeparture.setAttribute('d', `M 305 100 L 390 100`);
     }
+    
+    // Biggin Hill: landing 03
+    if (bqhRunway) bqhRunway.setAttribute('class', 'svg-runway both-easterly');
+    bqhApproach.setAttribute('d', `M 10 100 L 70 100`);
+    bqhDeparture.setAttribute('d', `M 305 100 L 390 100`);
   }
   
   // Highlight/dim pins by configuration matching the active arrival runway
@@ -1149,6 +1304,7 @@ function updateMapFlightPaths(ops) {
     const lhrActiveArr = document.getElementById('lhr-arrivals-runway').textContent.trim();
     const lgwActiveArr = document.getElementById('lgw-main-runway').textContent.trim();
     const lcyActiveArr = document.getElementById('lcy-active-runway').textContent.trim();
+    const bqhActiveArr = document.getElementById('bqh-active-runway') ? document.getElementById('bqh-active-runway').textContent.trim() : '';
     
     let isActiveSpot = false;
     
@@ -1158,6 +1314,8 @@ function updateMapFlightPaths(ops) {
       isActiveSpot = spot.config.includes(lgwActiveArr);
     } else if (spot.airport.includes('City')) {
       isActiveSpot = spot.config.includes(lcyActiveArr);
+    } else if (spot.airport.includes('Biggin')) {
+      isActiveSpot = spot.config.includes(bqhActiveArr);
     }
     
     if (isActiveSpot) {
