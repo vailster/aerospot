@@ -1040,6 +1040,14 @@ function renderMap() {
           <text x="40" y="65" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">T5 Mound (09L)</text>
         </g>
       </g>
+      
+      <!-- Compass Rose (North Indicator) -->
+      <g transform="translate(370, 40)" opacity="0.6">
+        <circle cx="0" cy="0" r="10" fill="none" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="2 2" />
+        <path d="M 0 -8 L 3 -2 L 0 -4 L -3 -2 Z" fill="var(--color-primary)" />
+        <path d="M 0 8 L 3 2 L 0 4 L -3 2 Z" fill="var(--text-dim)" />
+        <text x="0" y="-12" text-anchor="middle" fill="var(--text-muted)" font-family="Outfit" font-size="8" font-weight="700">N</text>
+      </g>
     </svg>
   `;
 
@@ -1092,6 +1100,14 @@ function renderMap() {
           <text x="40" y="130" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">08R Crash Gate</text>
         </g>
       </g>
+      
+      <!-- Compass Rose (North Indicator) -->
+      <g transform="translate(370, 40)" opacity="0.6">
+        <circle cx="0" cy="0" r="10" fill="none" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="2 2" />
+        <path d="M 0 -8 L 3 -2 L 0 -4 L -3 -2 Z" fill="var(--color-primary)" />
+        <path d="M 0 8 L 3 2 L 0 4 L -3 2 Z" fill="var(--text-dim)" />
+        <text x="0" y="-12" text-anchor="middle" fill="var(--text-muted)" font-family="Outfit" font-size="8" font-weight="700">N</text>
+      </g>
     </svg>
   `;
 
@@ -1139,6 +1155,14 @@ function renderMap() {
           <text x="65" y="125" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Connaught Brg</text>
         </g>
       </g>
+      
+      <!-- Compass Rose (North Indicator) -->
+      <g transform="translate(370, 40)" opacity="0.6">
+        <circle cx="0" cy="0" r="10" fill="none" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="2 2" />
+        <path d="M 0 -8 L 3 -2 L 0 -4 L -3 -2 Z" fill="var(--color-primary)" />
+        <path d="M 0 8 L 3 2 L 0 4 L -3 2 Z" fill="var(--text-dim)" />
+        <text x="0" y="-12" text-anchor="middle" fill="var(--text-muted)" font-family="Outfit" font-size="8" font-weight="700">N</text>
+      </g>
     </svg>
   `;
 
@@ -1180,6 +1204,14 @@ function renderMap() {
           <circle cx="65" cy="100" r="4" class="svg-spotter-pin" />
           <text x="65" y="125" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Saltbox Hill (03)</text>
         </g>
+      </g>
+      
+      <!-- Compass Rose (North Indicator) -->
+      <g transform="translate(370, 40)" opacity="0.6">
+        <circle cx="0" cy="0" r="10" fill="none" stroke="var(--text-dim)" stroke-width="1" stroke-dasharray="2 2" />
+        <path d="M 0 -8 L 3 -2 L 0 -4 L -3 -2 Z" fill="var(--color-primary)" />
+        <path d="M 0 8 L 3 2 L 0 4 L -3 2 Z" fill="var(--text-dim)" />
+        <text x="0" y="-12" text-anchor="middle" fill="var(--text-muted)" font-family="Outfit" font-size="8" font-weight="700">N</text>
       </g>
     </svg>
   `;
