@@ -194,8 +194,8 @@ function updateTime() {
   
   document.getElementById('local-time-value').textContent = timeString;
   
-  // Re-run calculations on LHR schedule
-  calculateAirportOperations();
+  // Re-run calculations only if simulation state changes
+  checkAndRunOperations();
 }
 
 // Time Simulation Handlers
@@ -540,6 +540,36 @@ function getCardinalDirection(deg) {
   const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
   const index = Math.round(((deg % 360) / 22.5)) % 16;
   return directions[index];
+}
+
+let lastSimStateKey = '';
+
+// Check if simulation state has changed before running heavy DOM calculations
+function checkAndRunOperations() {
+  const currentHour = localTime.getHours();
+  const currentDay = localTime.getDay();
+  
+  // LHR weekly cycle alternations
+  const msDiff = localTime - LHR_BASE_DATE;
+  const weeksDiff = Math.floor(msDiff / (7 * 24 * 60 * 60 * 1000));
+  
+  // LHR daytime phase: AM (06:00 - 15:00) vs PM (15:00 - end)
+  const isAM = (currentHour >= 6 && currentHour < 15);
+  
+  // LCY closure: Saturday 13:00 to Sunday 10:00
+  let isLcyClosed = false;
+  if (currentDay === 6) { // Saturday
+    if (currentHour >= 13) isLcyClosed = true;
+  } else if (currentDay === 0) { // Sunday
+    if (currentHour < 10) isLcyClosed = true;
+  }
+  
+  const stateKey = `${windDirection}_${windSpeed}_${weeksDiff}_${isAM}_${currentDay}_${currentHour}_${isLcyClosed}`;
+  
+  if (stateKey !== lastSimStateKey) {
+    lastSimStateKey = stateKey;
+    calculateAirportOperations();
+  }
 }
 
 // Core Operations Decision Tree

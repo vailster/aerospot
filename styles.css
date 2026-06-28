@@ -1487,6 +1487,28 @@ input[type="range"]:disabled::-webkit-slider-thumb {
   .airport-code-large {
     align-self: flex-start;
   }
+
+  /* Scale SVG Map Text on Mobile for better readability */
+  .airport-map svg text,
+  .airport-map-large svg text {
+    font-size: 11px !important;
+  }
+  
+  .airport-map svg text[font-size="10"],
+  .airport-map-large svg text[font-size="10"] {
+    font-size: 13px !important;
+  }
+  
+  .airport-map svg .svg-runway-label,
+  .airport-map-large svg .svg-runway-label {
+    font-size: 14px !important;
+    stroke-width: 5px !important;
+  }
+
+  .airport-map svg .svg-runway-label.standby,
+  .airport-map-large svg .svg-runway-label.standby {
+    font-size: 11px !important;
+  }
 }
 
 /* Extra small devices wind simulator layout */
