@@ -137,24 +137,24 @@ const SPOTTING_SPOTS = [
     lon: 0.0335,
     mapX: 320,
     mapY: 120,
-    config: 'Westerly Operations (Runway 21 Arrivals & Taxi)',
-    access: 'Located on Maitland View (TN16 3BN). Easy road access with free parking.',
-    tips: 'Grab a coffee and sit on the outdoor patio. Excellent views of aircraft taxiing right past the fence. Telephoto lens (70-200mm) is ideal.',
+    config: 'Westerly Ops (Runway 21 Taxi) / Easterly Ops (Runway 03 Arrivals)',
+    access: 'Located on Maitland View (TN16 3BN) at the Southwest end of the runway. Easy road access with free parking.',
+    tips: 'Grab a coffee and sit on the outdoor patio. Excellent views of Runway 03 arrivals passing directly overhead, and Runway 21 arrivals taxiing back.',
     description: 'A fantastic coffee shop directly overlooking the runway and parking aprons. Perfect for relaxing and watching business jets and vintage aircraft like Spitfires.',
     image: 'biggin_hill.jpg'
   },
   {
-    id: 'bqh_saltbox',
-    name: 'Saltbox Hill (A233)',
+    id: 'bqh_leaves_green',
+    name: 'Leaves Green Common',
     airport: 'Biggin Hill (BQH)',
-    lat: 51.3204,
-    lon: 0.0152,
+    lat: 51.3395,
+    lon: 0.0381,
     mapX: 65,
     mapY: 100,
-    config: 'Easterly Operations (Runway 03 Arrivals)',
-    access: 'Located along the A233 Main Road. Take a bus to "Main Road / SaltBox Hill" stop.',
-    tips: 'Great for low-altitude shots of aircraft descending to land. Bring boots if it has been raining.',
-    description: 'A grassy area located under the approach path to runway 03. Great for low-altitude shots of aircraft descending to land.',
+    config: 'Westerly Operations (Runway 21 Arrivals)',
+    access: 'Located at the Northeast approach end of the runway. Take a bus to Leaves Green / King\'s Arms.',
+    tips: 'Perfect for Runway 21 arrivals. Aircraft pass very low over the common trees just before touchdown.',
+    description: 'A spacious open common at the north-east approach path to Runway 21, offering clean views of arriving aircraft descending over the trees.',
     image: 'biggin_hill.jpg'
   }
 ];
@@ -1187,22 +1187,22 @@ function renderMap() {
       <path d="" id="path-bqh-departure" class="svg-flight-path departure" />
 
       <!-- Runway 03/21 -->
-      <line x1="80" y1="100" x2="300" y2="100" id="map-runway-bqh" class="svg-runway" />
-      <text x="50" y="103" class="svg-runway-label">03</text>
-      <text x="312" y="103" class="svg-runway-label">21</text>
+      <line x1="120" y1="120" x2="280" y2="60" id="map-runway-bqh" class="svg-runway" />
+      <text x="100" y="115" class="svg-runway-label">03</text>
+      <text x="295" y="70" class="svg-runway-label">21</text>
       
       <!-- Spotter Pins -->
       <g id="pins-bqh">
         <!-- The Lookout Coffee Shop (Runway 21 / Apron) -->
         <g class="spotter-pin-group" id="pin-bqh_lookout" onclick="openSpotterModal('bqh_lookout')">
-          <circle cx="320" cy="120" r="4" class="svg-spotter-pin" />
-          <text x="320" y="140" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Lookout Cafe (21)</text>
+          <circle cx="100" cy="130" r="4" class="svg-spotter-pin" />
+          <text x="100" y="148" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Lookout Cafe (03/21)</text>
         </g>
         
-        <!-- Saltbox Hill (Runway 03 approach) -->
-        <g class="spotter-pin-group" id="pin-bqh_saltbox" onclick="openSpotterModal('bqh_saltbox')">
-          <circle cx="65" cy="100" r="4" class="svg-spotter-pin" />
-          <text x="65" y="125" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Saltbox Hill (03)</text>
+        <!-- Leaves Green Common (Runway 21 approach) -->
+        <g class="spotter-pin-group" id="pin-bqh_leaves_green" onclick="openSpotterModal('bqh_leaves_green')">
+          <circle cx="300" cy="50" r="4" class="svg-spotter-pin" />
+          <text x="300" y="32" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-weight="600">Leaves Green (21)</text>
         </g>
       </g>
       
@@ -1290,8 +1290,8 @@ function updateMapFlightPaths(ops) {
     
     // Biggin Hill: landing 21
     if (bqhRunway) bqhRunway.setAttribute('class', 'svg-runway both-westerly');
-    bqhApproach.setAttribute('d', `M 390 100 L 305 100`);
-    bqhDeparture.setAttribute('d', `M 70 100 L 10 100`);
+    bqhApproach.setAttribute('d', 'M 370 20 L 280 60');
+    bqhDeparture.setAttribute('d', 'M 120 120 L 30 150');
     
   } else {
     // Easterly Operations: landing towards east (arrivals from west)
@@ -1323,8 +1323,8 @@ function updateMapFlightPaths(ops) {
     
     // Biggin Hill: landing 03
     if (bqhRunway) bqhRunway.setAttribute('class', 'svg-runway both-easterly');
-    bqhApproach.setAttribute('d', `M 10 100 L 70 100`);
-    bqhDeparture.setAttribute('d', `M 305 100 L 390 100`);
+    bqhApproach.setAttribute('d', 'M 30 150 L 120 120');
+    bqhDeparture.setAttribute('d', 'M 280 60 L 370 20');
   }
   
   // Highlight/dim pins by configuration matching the active arrival runway
