@@ -1589,50 +1589,43 @@ input[type="range"]:disabled::-webkit-slider-thumb {
 /* FIDS Board (Flight Information Display System) styling */
 .fids-table {
   width: 100%;
+  border-collapse: collapse;
   background: rgba(8, 12, 20, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  padding: 0.5rem;
+  overflow: hidden; /* ensures border radius is respected */
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
   font-family: var(--font-body);
 }
 
-.fids-header {
-  display: grid;
-  grid-template-columns: 60px 80px 1fr 100px;
-  gap: 1rem;
-  padding: 0.5rem 0.75rem;
+.fids-table th {
+  background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-dim);
   font-weight: 700;
+  padding: 0.75rem 1rem;
+  text-align: left;
 }
 
-.fids-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.fids-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  vertical-align: middle;
 }
 
-.fids-row {
-  display: grid;
-  grid-template-columns: 60px 80px 1fr 100px;
-  gap: 1rem;
-  padding: 0.75rem;
-  align-items: center;
-  border-radius: 8px;
-  transition: all var(--transition-fast);
+.fids-table tr:last-child td {
+  border-bottom: none;
 }
 
-.fids-row:hover {
+.fids-table tr {
+  transition: background var(--transition-fast);
+}
+
+.fids-table tr:hover {
   background: rgba(255, 255, 255, 0.03);
-}
-
-.fids-col-time {
-  display: flex;
-  align-items: center;
 }
 
 .fids-time {
@@ -1643,12 +1636,6 @@ input[type="range"]:disabled::-webkit-slider-thumb {
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
 }
 
-.fids-col-flight {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
 .fids-flight-no {
   font-weight: 600;
   font-size: 0.85rem;
@@ -1656,39 +1643,19 @@ input[type="range"]:disabled::-webkit-slider-thumb {
 }
 
 .fids-airline {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fids-col-route {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
 }
 
 .fids-origin {
   font-weight: 600;
   font-size: 0.85rem;
   color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .fids-aircraft {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fids-col-status {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .fids-status {
@@ -1743,25 +1710,26 @@ input[type="range"]:disabled::-webkit-slider-thumb {
   border-radius: 12px;
 }
 
-/* Mobile responsive adjustments for FIDS board */
+/* Mobile responsive adjustments for HTML Table FIDS board */
+@media (max-width: 768px) {
+  /* On tablets, hide airline and aircraft columns */
+  .fids-table th:nth-child(3), /* Airline */
+  .fids-table td:nth-child(3),
+  .fids-table th:nth-child(5), /* Aircraft */
+  .fids-table td:nth-child(5) {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
-  .fids-header {
-    grid-template-columns: 50px 80px 1fr;
-    gap: 0.5rem;
-    padding: 0.5rem;
-  }
-  .fids-header .fids-col-status {
+  /* On phone screens, hide Status column and put indicator dot directly next to flight number */
+  .fids-table th:nth-child(6), /* Status */
+  .fids-table td:nth-child(6) {
     display: none;
   }
-  
-  .fids-row {
-    grid-template-columns: 50px 80px 1fr;
+
+  .fids-table th, .fids-table td {
     padding: 0.6rem 0.5rem;
-    gap: 0.5rem;
-  }
-  
-  .fids-row .fids-col-status {
-    display: none;
   }
 
   .fids-flight-no {
@@ -1779,10 +1747,10 @@ input[type="range"]:disabled::-webkit-slider-thumb {
     flex-shrink: 0;
   }
 
-  .fids-row:has(.status-ontime) .fids-flight-no::after { background-color: var(--color-success); }
-  .fids-row:has(.status-final) .fids-flight-no::after { background-color: var(--color-warning); }
-  .fids-row:has(.status-landed) .fids-flight-no::after { background-color: var(--color-primary); }
-  .fids-row:has(.status-scheduled) .fids-flight-no::after { background-color: var(--text-dim); }
+  .fids-table tr:has(.status-ontime) .fids-flight-no::after { background-color: var(--color-success); }
+  .fids-table tr:has(.status-final) .fids-flight-no::after { background-color: var(--color-warning); }
+  .fids-table tr:has(.status-landed) .fids-flight-no::after { background-color: var(--color-primary); }
+  .fids-table tr:has(.status-scheduled) .fids-flight-no::after { background-color: var(--text-dim); }
 }
 
 
