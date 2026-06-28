@@ -355,6 +355,9 @@ function renderAirportDetail(code, force = false) {
     `;
   }).join('');
   
+  // Render upcoming arrivals list for this airport
+  renderUpcomingArrivals(code);
+  
   initLucide();
 }
 
@@ -564,7 +567,8 @@ function checkAndRunOperations() {
     if (currentHour < 10) isLcyClosed = true;
   }
   
-  const stateKey = `${windDirection}_${windSpeed}_${weeksDiff}_${isAM}_${currentDay}_${currentHour}_${isLcyClosed}`;
+  const currentMinute = localTime.getMinutes();
+  const stateKey = `${windDirection}_${windSpeed}_${weeksDiff}_${isAM}_${currentDay}_${currentHour}_${currentMinute}_${isLcyClosed}`;
   
   if (stateKey !== lastSimStateKey) {
     lastSimStateKey = stateKey;
@@ -1279,3 +1283,134 @@ window.addEventListener('click', (e) => {
     closeSpotterModal();
   }
 });
+
+// Dynamic Mock Flight Database Pools
+const FLIGHT_DATA_POOL = {
+  LHR: [
+    { fn: 'BA178', origin: 'New York (JFK)', airline: 'British Airways', aircraft: 'Boeing 777-300ER' },
+    { fn: 'VS004', origin: 'New York (JFK)', airline: 'Virgin Atlantic', aircraft: 'Airbus A350-1000' },
+    { fn: 'EK001', origin: 'Dubai (DXB)', airline: 'Emirates', aircraft: 'Airbus A380' },
+    { fn: 'SQ318', origin: 'Singapore (SIN)', airline: 'Singapore Airlines', aircraft: 'Boeing 787-10' },
+    { fn: 'LH902', origin: 'Frankfurt (FRA)', airline: 'Lufthansa', aircraft: 'Airbus A320neo' },
+    { fn: 'BA226', origin: 'Atlanta (ATL)', airline: 'British Airways', aircraft: 'Boeing 787-9' },
+    { fn: 'UA904', origin: 'Chicago (ORD)', airline: 'United Airlines', aircraft: 'Boeing 777-200ER' },
+    { fn: 'AC854', origin: 'Vancouver (YVR)', airline: 'Air Canada', aircraft: 'Boeing 787-9' },
+    { fn: 'QF002', origin: 'Singapore (SIN)', airline: 'Qantas', aircraft: 'Airbus A380' },
+    { fn: 'AF1680', origin: 'Paris (CDG)', airline: 'Air France', aircraft: 'Airbus A220-300' },
+    { fn: 'NH211', origin: 'Tokyo (HND)', airline: 'ANA', aircraft: 'Boeing 777-300ER' },
+    { fn: 'QR003', origin: 'Doha (DOH)', airline: 'Qatar Airways', aircraft: 'Boeing 777-300ER' }
+  ],
+  LGW: [
+    { fn: 'EZY812', origin: 'Nice (NCE)', airline: 'easyJet', aircraft: 'Airbus A320neo' },
+    { fn: 'BA2273', origin: 'Orlando (MCO)', airline: 'British Airways', aircraft: 'Boeing 777-200ER' },
+    { fn: 'EZY6486', origin: 'Barcelona (BCN)', airline: 'easyJet', aircraft: 'Airbus A321neo' },
+    { fn: 'W95738', origin: 'Budapest (BUD)', airline: 'Wizz Air', aircraft: 'Airbus A321neo' },
+    { fn: 'VY6012', origin: 'Barcelona (BCN)', airline: 'Vueling', aircraft: 'Airbus A320' },
+    { fn: 'N0702', origin: 'New York (JFK)', airline: 'Norse Atlantic', aircraft: 'Boeing 787-9' },
+    { fn: 'BY458', origin: 'Tenerife (TFS)', airline: 'TUI Airways', aircraft: 'Boeing 737 MAX 8' },
+    { fn: 'EZY8512', origin: 'Amsterdam (AMS)', airline: 'easyJet', aircraft: 'Airbus A320neo' },
+    { fn: 'EK015', origin: 'Dubai (DXB)', airline: 'Emirates', aircraft: 'Airbus A380' },
+    { fn: 'QR327', origin: 'Doha (DOH)', airline: 'Qatar Airways', aircraft: 'Boeing 787-8' }
+  ],
+  LCY: [
+    { fn: 'BA4450', origin: 'Zurich (ZRH)', airline: 'BA CityFlyer', aircraft: 'Embraer E190' },
+    { fn: 'KL981', origin: 'Amsterdam (AMS)', airline: 'KLM Cityhopper', aircraft: 'Embraer E190' },
+    { fn: 'AZ210', origin: 'Milan (LIN)', airline: 'ITA Airways', aircraft: 'Airbus A220-100' },
+    { fn: 'LH934', origin: 'Frankfurt (FRA)', airline: 'Lufthansa CityLine', aircraft: 'Embraer E190' },
+    { fn: 'LX456', origin: 'Zurich (ZRH)', airline: 'Swiss', aircraft: 'Airbus A220-100' },
+    { fn: 'BA4462', origin: 'Edinburgh (EDI)', airline: 'BA CityFlyer', aircraft: 'Embraer E190' },
+    { fn: 'LM322', origin: 'Dundee (DDE)', airline: 'Loganair', aircraft: 'ATR 42-600' },
+    { fn: 'BA4478', origin: 'Dublin (DUB)', airline: 'BA CityFlyer', aircraft: 'Embraer E190' }
+  ]
+};
+
+// Generates upcoming arrivals based on local/simulated time deterministically
+function getUpcomingArrivals(airportCode) {
+  const flights = [];
+  const dateSeed = localTime.getFullYear() * 10000 + (localTime.getMonth() + 1) * 100 + localTime.getDate();
+  
+  let intervalMinutes = 10; // Heathrow
+  if (airportCode === 'LGW') intervalMinutes = 15;
+  if (airportCode === 'LCY') intervalMinutes = 25;
+
+  // LCY Weekend Closure check
+  const currentDay = localTime.getDay();
+  const currentHour = localTime.getHours();
+  let isLcyClosed = false;
+  if (currentDay === 6 && currentHour >= 13) isLcyClosed = true;
+  else if (currentDay === 0 && currentHour < 10) isLcyClosed = true;
+
+  if (airportCode === 'LCY' && isLcyClosed) {
+    return [];
+  }
+
+  const currentTotalMinutes = localTime.getHours() * 60 + localTime.getMinutes();
+  let nextTimeSlot = Math.ceil(currentTotalMinutes / intervalMinutes) * intervalMinutes;
+
+  for (let i = 0; i < 4; i++) {
+    const slotMinutes = nextTimeSlot + (i * intervalMinutes);
+    const slotHour = Math.floor((slotMinutes / 60) % 24);
+    const slotMin = Math.floor(slotMinutes % 60);
+    const timeStr = `${String(slotHour).padStart(2, '0')}:${String(slotMin).padStart(2, '0')}`;
+    
+    const pool = FLIGHT_DATA_POOL[airportCode];
+    const poolIndex = (dateSeed + slotMinutes) % pool.length;
+    const flightTemplate = pool[poolIndex];
+    
+    let status = 'Scheduled';
+    const diffMin = slotMinutes - currentTotalMinutes;
+    if (diffMin <= 4 && diffMin > 0) {
+      status = 'Final Approach';
+    } else if (diffMin <= 0) {
+      status = 'Landed';
+    } else if (diffMin <= 12) {
+      status = 'On Time';
+    }
+    
+    flights.push({
+      time: timeStr,
+      flightNumber: flightTemplate.fn,
+      origin: flightTemplate.origin,
+      airline: flightTemplate.airline,
+      aircraft: flightTemplate.aircraft,
+      status: status
+    });
+  }
+  
+  return flights;
+}
+
+// Render the upcoming arrivals on the active airport page
+function renderUpcomingArrivals(code) {
+  const containerId = `${code.toLowerCase()}-arrivals-list`;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  const flights = getUpcomingArrivals(code);
+  
+  if (flights.length === 0) {
+    container.innerHTML = `<div class="no-arrivals-msg">No scheduled arrivals (Airport Closed due to Curfew)</div>`;
+    return;
+  }
+  
+  container.innerHTML = flights.map(flight => {
+    let statusClass = 'status-scheduled';
+    if (flight.status === 'On Time') statusClass = 'status-ontime';
+    else if (flight.status === 'Final Approach') statusClass = 'status-final';
+    else if (flight.status === 'Landed') statusClass = 'status-landed';
+    
+    return `
+      <div class="arrival-item">
+        <div class="arrival-meta">
+          <span class="arrival-time">${flight.time}</span>
+          <span class="arrival-flight">${flight.flightNumber}</span>
+        </div>
+        <div class="arrival-details">
+          <div class="arrival-route">${flight.origin}</div>
+          <div class="arrival-info">${flight.airline} • ${flight.aircraft}</div>
+        </div>
+        <div class="arrival-status ${statusClass}">${flight.status}</div>
+      </div>
+    `;
+  }).join('');
+}
