@@ -1,6 +1,6 @@
 # AeroSpot ✈️
 
-AeroSpot is a premium, responsive Single Page Application (SPA) and Operational Simulator designed for aviation enthusiasts and plane spotters tracking operations at major London airports:
+AeroSpot is a responsive multi-view web application and Operational Simulator designed for aviation enthusiasts and plane spotters tracking operations at major London airports:
 * **London Heathrow (LHR)**
 * **London Gatwick (LGW)**
 * **London City (LCY)**
@@ -11,7 +11,7 @@ The application combines beautiful modern aesthetics, real-time-like simulations
 
 ## ✨ Features
 
-### 1. Client-Side SPA Router
+### 1. Client-Side Multi-View Router
 * Hash-based routing (`#/`, `#/lhr`, `#/lgw`, `#/lcy`) allows seamless subpage transitions without page reloads.
 * Persists the global simulation state (custom wind direction/speed and custom date/time overrides) across all views.
 
